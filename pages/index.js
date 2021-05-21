@@ -27,7 +27,8 @@ export default function Home() {
       </main>
 
       <footer className={styles.footer}>
-        <a className="inverse-link" href="https://github.com/joepuzzo">Github</a>
+        <a className="inverse-link" href="https://joepuzzo.github.io/">Creator</a>
+        <a className="inverse-link" href="https://github.com/joepuzzo/bitcoin-unchained">Github</a>
         <a className="inverse-link" href="https://www.linkedin.com/in/joe-puzzo-97612657">Linkedin</a>
       </footer>
     </div>

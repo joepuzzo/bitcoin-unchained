@@ -19,7 +19,10 @@
   border-radius: 20px;
   width: 80%;
   /* color: white; */
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
+
+
 
 @media only screen and (max-width: 768px) {
   .calculator{
@@ -31,11 +34,25 @@
 @media only screen and (min-width: 768px) {
   .calculator {
     width: 30%;
-    min-width: 800px;
+    min-width: 750px;
   }
 }
 
 .calculatorForm {
   width: 70%;
   margin: 3rem;
+}
+
+.calculatorDisabled {
+  opacity: 0.5;
+}
+
+.coinSelectorLabel {
+  display: inline-block;
+  margin-bottom: 0px;
+}
+
+.coinSelectorImg {
+  display: inline-block;
+  margin-left: 1rem;
 }
