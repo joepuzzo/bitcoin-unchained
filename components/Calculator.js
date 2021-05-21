@@ -83,7 +83,109 @@ const Coins = ({ disabled }) => {
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US'),[]);
 
   return (
-    <Input field="coins" label="How many Coins do you have?" required disabled={disabled} formatter={formatter} parser={parser}/>
+    <Input 
+      field="coins" 
+      label="How many Coins do you have?" 
+      required 
+      disabled={disabled} 
+      initialValue="1000"
+      formatter={formatter} 
+      parser={parser}/>
+  )
+}
+
+/* --------------------------------------------- Future Price  --------------------------------------------- */
+const FuturePrice = ({ disabled }) => {
+
+  const { value: futureValue } = useFieldState('futureValue');
+  const { value: coins } = useFieldState('coins');
+  const fieldApi = useFieldApi('futurePrice');
+
+  const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }),[]);
+
+  
+
+  // futureValue = coins * futurePrice
+  // futurePrice = futureValue / coins 
+  useEffect(()=>{
+    // Only update if we need to ( avoid loop lol )
+    if(futureValue != null && coins != null && fieldApi.getValue() != futureValue / coins ){
+      console.log('CALC FUTURE PRICE');
+      fieldApi.setValue( futureValue / coins );
+    }
+  }, [futureValue, coins])
+
+  return (
+    <Input 
+      field="futurePrice" 
+      label="Future Price" 
+      required 
+      initialValue="1000"
+      disabled={disabled} 
+      formatter={formatter} 
+      parser={parser}/>
+  )
+}
+
+/* --------------------------------------------- Current Value  --------------------------------------------- */
+const CurrentValue = ({ disabled }) => {
+
+  const { value: coinPrice } = useFieldState('coinPrice');
+  const { value: coins } = useFieldState('coins');
+  const fieldApi = useFieldApi('value');
+
+  const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }),[]);
+
+  useEffect(()=>{
+    fieldApi.setValue( coins * coinPrice );
+  }, [coinPrice, coins])
+
+  return (
+    <Input 
+      field="value" 
+      label="Your coins are currently worth" 
+      required 
+      disabled 
+      formatter={formatter} 
+      parser={parser}/>
+  )
+}
+
+/* --------------------------------------------- Future Value  --------------------------------------------- */
+const FutureValue = ({ disabled }) => {
+
+  const { value: futurePrice } = useFieldState('futurePrice');
+  const { value: coins } = useFieldState('coins');
+  const fieldApi = useFieldApi('futureValue');
+
+  const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }),[]);
+
+  useEffect(()=>{
+    // Only update if we need to ( avoid loop lol )
+    if(futurePrice != null && coins != null && fieldApi.getValue() !=  coins * futurePrice ){
+      console.log('CALC FUTURE VALUE');
+      fieldApi.setValue( coins * futurePrice );
+    }
+  // Specifically do NOT trigger when coins change to avoid loop
+  }, [futurePrice])
+
+  return (
+    <Input 
+      field="futureValue" 
+      label="Future Value" 
+      required 
+      disabled={disabled} 
+      formatter={formatter} 
+      parser={parser}/>
   )
 }
 
@@ -100,9 +202,12 @@ const CalculatorForm = ({ disabled, coins}) => {
       <CoinSelector coins={coins} selectedCoin={selectedCoin} disabled={disabled} />
       <CoinPrice disabled={disabled} selectedCoin={selectedCoin} />
       <CoinSupply  disabled={disabled} selectedCoin={selectedCoin} />
-      <Coins disabled={disabled} selectedCoin={selectedCoin} />
-      <button type="submit">Submit</button> 
-      <FormState />
+      <Coins disabled={disabled} />
+      <FuturePrice disabled={disabled} />
+      <CurrentValue disabled={disabled} />
+      <FutureValue disabled={disabled} />
+      {/* <button type="submit">Submit</button>  */}
+      {/* <FormState /> */}
     </>
   )
 }
