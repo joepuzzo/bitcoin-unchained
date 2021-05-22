@@ -139,6 +139,7 @@ button:hover {
   height: 40px;
   left: 20%;
   animation-duration: 9s;
+  background-color: rgba(107, 41, 11, 0.35);
 }
 
 .a-bubbles li:nth-child(2) {
@@ -155,6 +156,7 @@ button:hover {
   left: 30%;
   animation-delay: 2s;
   animation-duration: 9s;
+  background-color: rgba(16, 31, 99, 0.35);
 }
 
 .a-bubbles li:nth-child(4) {
@@ -163,6 +165,7 @@ button:hover {
   left: 80%;
   animation-delay: 2.5s;
   animation-duration: 9s;
+  background-color: rgba(107, 41, 11, 0.35);
 }
 
 .a-bubbles li:nth-child(5) {
@@ -171,6 +174,7 @@ button:hover {
   left: 50%;
   animation-delay: 4s;
   animation-duration: 9s;
+  background-color: rgba(8, 73, 6, 0.35);
 }
 
 .a-bubbles li:nth-child(6) {
@@ -179,6 +183,7 @@ button:hover {
   left: 70%;
   animation-delay: 5s;
   animation-duration: 9s;
+  background-color: rgba(16, 31, 99, 0.35);
 }
 
 .a-bubbles li:nth-child(7) {
@@ -195,6 +200,7 @@ button:hover {
   left: 40%;
   animation-delay: 6s;
   animation-duration: 9s;
+  background-color: rgba(8, 73, 6, 0.35);
 }
 
 @keyframes circle {
