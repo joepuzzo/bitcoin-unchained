@@ -196,6 +196,7 @@ const FuturePrice = ({ disabled, coins }) => {
         onChange={compute}
         field="futurePrice" 
         label="Future Price" 
+        initialValue="10000"
         required 
         disabled={disabled} 
         formatter={formatter} 
