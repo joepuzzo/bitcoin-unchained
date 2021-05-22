@@ -24,10 +24,19 @@
 
 
 
+.calculatorForm {
+  width: 70%;
+  margin: 3rem;
+}
+
 @media only screen and (max-width: 768px) {
   .calculator{
-    width: 80%;
-    max-width: 500px;
+    width: 95%;
+    max-width: 600px;
+  }
+  .calculatorForm {
+    width: 90%;
+    margin: 3rem;
   }
 }
 
@@ -36,11 +45,6 @@
     width: 30%;
     min-width: 750px;
   }
-}
-
-.calculatorForm {
-  width: 70%;
-  margin: 3rem;
 }
 
 .calculatorDisabled {
