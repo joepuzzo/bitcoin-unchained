@@ -24,6 +24,14 @@ export default function Home() {
         </p>
 
         <Calculator />
+
+        <p className={styles.description}>
+          Help me out if you enjoyed :) 
+          <div>
+          ETH: <code>0x979b6378622E92998E167Ba199C23E9a8B599979</code>
+          </div>
+        </p>
+
       </main>
 
       <footer className={styles.footer}>
