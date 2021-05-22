@@ -31,6 +31,7 @@ const useComputation = ({ ignore, coins }) => {
     const futureValue = ignore === 'futureValue' ? currentValues.futureValue : currentValues.coins && currentValues.futurePrice && ( currentValues.coins * currentValues.futurePrice );
     const futurePrice = ignore === 'futurePrice' ? currentValues.futurePrice : currentValues.coins && ( futureValue && futureValue / currentValues.coins );
     const futureMarketCap = ignore === 'futureMarketCap' ? currentValues.futureMarketCap : coinSupply && futurePrice && ( coinSupply * futurePrice );
+    const marketIncrease = ignore === 'marketIncrease' ? currentValues.marketIncrease : futureMarketCap && marketCap && ( futureMarketCap - marketCap );
 
     const newValues = {
       coinPrice,
@@ -39,14 +40,48 @@ const useComputation = ({ ignore, coins }) => {
       value,
       futureValue,
       futurePrice,
-      futureMarketCap
+      futureMarketCap,
+      marketIncrease
     };
 
     // Special Cases
 
     // We want a change on futureMarketCap to update your futures
+    // MATH: [] means known variables
+    // 
+    // System of equations
+    // futurePrice = futureValue / [coins]
+    // futureValue = [coins] * futurePrice
+    // [futureMarketCap] = [coinSupply] * futurePrice
+    // 
+    // RE - ARRANGE THEM
+    // futurePrice = [futureMarketCap] / [coinSupply]
+    // 
+    //                              |
+    //      v---------sub------------
+    // 
+    // futurePrice = futureValue / [coins]
+    // 
+    // RESULT:
+    // [futureMarketCap] / [coinSupply] = futureValue / [coins]
+    // 
+    // RE Arrange
+    // ( [futureMarketCap] / [coinSupply] ) * [coins] = futureValue;
     if( ignore === 'futureMarketCap' ){
       newValues.futureValue = ( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins
+      newValues.futurePrice = newValues.futureValue / currentValues.coins;
+    }
+
+    // We want a change on marketIncrease to update your futures
+    // MATH: [] means known variables
+    //
+    // System of equations
+    // marketIncrease = futureMarketCap - marketCap
+    // futureMarketCap = marketIncrease + marketCap
+    //
+    if( ignore === 'marketIncrease' ){
+      newValues.futureMarketCap = newValues.marketIncrease + marketCap;
+      newValues.futureValue = ( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins;
       newValues.futurePrice = newValues.futureValue / currentValues.coins;
     }
 
@@ -271,6 +306,31 @@ const FutureMarketCap = ({ disabled, coins }) => {
   )
 };
 
+/* --------------------------------------------- Future Market Cap  --------------------------------------------- */
+const MarketIncrease = ({ disabled, coins }) => {
+
+  const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }),[]);
+
+  const { compute } = useComputation({ ignore: 'marketIncrease', coins });
+
+  return (
+    <>
+      <Input 
+        onChange={compute}
+        field="marketIncrease" 
+        label="Increase in market cap" 
+        required 
+        disabled={disabled} 
+        formatter={formatter} 
+        parser={parser}/>
+      <Info info={`coin_supply * coin_price`}/>
+    </>
+  )
+};
+
 /* --------------------------------------------- Calculator Form  --------------------------------------------- */
 const CalculatorForm = ({ disabled, coins, onChange }) => {
 
@@ -291,8 +351,9 @@ const CalculatorForm = ({ disabled, coins, onChange }) => {
       <FuturePrice coins={coins} disabled={disabled} onChange={onChange}/>
       <FutureValue coins={coins} disabled={disabled} onChange={onChange}/>
       <FutureMarketCap coins={coins} disabled={disabled} />
+      <MarketIncrease coins={coins} disabled={disabled} />
       {/* <button type="submit">Submit</button>  */}
-      {/* <FormState /> */} 
+      {/* <FormState />  */}
     </>
   )
 }
@@ -304,7 +365,7 @@ const Calculator = () => {
     url: '/api/prices',
   });
 
-  console.log('DATA', coins);
+  // console.log('DATA', coins);
 
   const disabled = loading;
 
