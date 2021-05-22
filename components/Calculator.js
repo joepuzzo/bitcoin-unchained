@@ -10,6 +10,11 @@ const Info = ({info}) => {
   return <div className={styles.info}><span className={styles.infoIcon}>&#8505;</span><small>{info}</small></div>
 }
 
+const round = (num) => {
+  const number = +num;
+  return +(number.toFixed(6))
+}
+
 const useComputation = ({ ignore, coins }) => {
   const formApi = useFormApi();
 
@@ -17,8 +22,18 @@ const useComputation = ({ ignore, coins }) => {
     const currentValues = formApi.getValues();
 
     const selectedCoin = coins.find( coin => coin.symbol === currentValues.coin );
-    const coinPrice = ignore === 'coinPrice' ? currentValues.coinPrice : selectedCoin.price;
-    const coinSupply = ignore === 'coinSupply' ? currentValues.coinSupply : selectedCoin.circulating_supply;
+
+    let coinPrice = round(currentValues.coinPrice);
+    let coinSupply = round(currentValues.coinSupply);
+
+    if( ignore === 'coin' ){
+      coinPrice = round(selectedCoin.price);
+      coinSupply = round(selectedCoin.circulating_supply);
+    }
+
+
+    // const coinPrice = ignore === 'coinPrice' ? currentValues.coinPrice : ( currentValues.coinPrice || round(selectedCoin.price) );
+    // const coinSupply = ignore === 'coinSupply' ? currentValues.coinSupply : ( currentValues.coinSupply || round(selectedCoin.circulating_supply));
 
     // marketCap = coinSupply * coinPrice 
     // value = coinPrice * coins
@@ -26,12 +41,14 @@ const useComputation = ({ ignore, coins }) => {
     // futurePrice = futureValue / coins
     // futurePrice = futureMarketCap / coinSupply
     // futureMarketCap = coinSupply * futurePrice
-    const marketCap = ignore === 'marketCap' ? currentValues.marketCap : ( coinSupply * coinPrice );
-    const value = ignore === 'value' ? currentValues.value : currentValues.coins && coinPrice && ( coinPrice * currentValues.coins );
-    const futureValue = ignore === 'futureValue' ? currentValues.futureValue : currentValues.coins && currentValues.futurePrice && ( currentValues.coins * currentValues.futurePrice );
-    const futurePrice = ignore === 'futurePrice' ? currentValues.futurePrice : currentValues.coins && ( futureValue && futureValue / currentValues.coins );
-    const futureMarketCap = ignore === 'futureMarketCap' ? currentValues.futureMarketCap : coinSupply && futurePrice && ( coinSupply * futurePrice );
-    const marketIncrease = ignore === 'marketIncrease' ? currentValues.marketIncrease : futureMarketCap && marketCap && ( futureMarketCap - marketCap );
+    // netIncrease = futureValue - value
+    const marketCap = ignore === 'marketCap' ? currentValues.marketCap : round( coinSupply * coinPrice );
+    const value = ignore === 'value' ? currentValues.value : currentValues.coins && coinPrice && round( coinPrice * currentValues.coins );
+    const futureValue = ignore === 'futureValue' ? currentValues.futureValue : currentValues.coins && currentValues.futurePrice && round( currentValues.coins * currentValues.futurePrice );
+    const futurePrice = ignore === 'futurePrice' ? currentValues.futurePrice : currentValues.coins && round( futureValue && futureValue / currentValues.coins );
+    const futureMarketCap = ignore === 'futureMarketCap' ? currentValues.futureMarketCap : coinSupply && futurePrice && round( coinSupply * futurePrice );
+    const marketIncrease = ignore === 'marketIncrease' ? currentValues.marketIncrease : futureMarketCap && marketCap && round( futureMarketCap - marketCap );
+    const netIncrease = ignore === 'netIncrease' ? currentValues.netIncrease : futureValue && value && round( futureValue - value );
 
     const newValues = {
       coinPrice,
@@ -41,7 +58,8 @@ const useComputation = ({ ignore, coins }) => {
       futureValue,
       futurePrice,
       futureMarketCap,
-      marketIncrease
+      marketIncrease,
+      netIncrease
     };
 
     // Special Cases
@@ -68,8 +86,10 @@ const useComputation = ({ ignore, coins }) => {
     // RE Arrange
     // ( [futureMarketCap] / [coinSupply] ) * [coins] = futureValue;
     if( ignore === 'futureMarketCap' ){
-      newValues.futureValue = ( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins
-      newValues.futurePrice = newValues.futureValue / currentValues.coins;
+      newValues.futureValue = round(( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins)
+      newValues.futurePrice = round(newValues.futureValue / currentValues.coins);
+      newValues.netIncrease = round(newValues.futureValue - newValues.value);
+      newValues.marketIncrease = round( newValues.futureMarketCap - newValues.marketCap );
     }
 
     // We want a change on marketIncrease to update your futures
@@ -80,10 +100,37 @@ const useComputation = ({ ignore, coins }) => {
     // futureMarketCap = marketIncrease + marketCap
     //
     if( ignore === 'marketIncrease' ){
-      newValues.futureMarketCap = newValues.marketIncrease + marketCap;
-      newValues.futureValue = ( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins;
-      newValues.futurePrice = newValues.futureValue / currentValues.coins;
+      newValues.futureMarketCap = round(newValues.marketIncrease + newValues.marketCap);
+      newValues.futureValue = round(( newValues.futureMarketCap / newValues.coinSupply ) * currentValues.coins);
+      newValues.futurePrice = round(newValues.futureValue / currentValues.coins);
+      newValues.netIncrease = round(newValues.futureValue - newValues.value);
     }
+
+    // We want a change on netIncrease to update your futures
+    // MATH: [] means known variables
+    //
+    // System of equations
+    // [netIncrease] = futureValue - [value]
+
+    // Re - arrange to get: 
+    // futureValue = [netIncrease] + [value]
+    //
+    // now [futureValue] is a known variable
+    //
+    // futurePrice = [futureValue] / coins
+    //
+    // now [futurePrice] is a known varaible
+    // 
+    // futureMarketCap = [coinSupply] * [futurePrice]
+    //
+    if( ignore === 'netIncrease' ){
+      newValues.futureValue = round(currentValues.netIncrease + currentValues.value);
+      newValues.futurePrice = round(newValues.futureValue / currentValues.coins);
+      newValues.futureMarketCap = round(newValues.coinSupply * newValues.futurePrice );
+      newValues.marketIncrease = round( newValues.futureMarketCap - newValues.marketCap );
+    }
+
+    delete newValues[ignore];
 
     formApi.setValues(newValues)
   }
@@ -124,7 +171,9 @@ const CoinPrice = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'coinPrice', coins });
@@ -185,7 +234,9 @@ const FuturePrice = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futurePrice', coins });
@@ -195,7 +246,7 @@ const FuturePrice = ({ disabled, coins }) => {
       <Input 
         onChange={compute}
         field="futurePrice" 
-        label="Future Price" 
+        label="If the future price was" 
         initialValue="10000"
         required 
         disabled={disabled} 
@@ -211,7 +262,9 @@ const CurrentValue = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'value', coins });
@@ -236,7 +289,9 @@ const FutureValue = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futureValue', coins });
@@ -246,7 +301,35 @@ const FutureValue = ({ disabled, coins }) => {
     <Input 
       onChange={compute}
       field="futureValue" 
-      label="How much you would have." 
+      label="You would have" 
+      required 
+      disabled={disabled} 
+      formatter={formatter} 
+      parser={parser}/>
+      {/* <Info info={`${coins} coins * ${futurePrice} futurePrice`}/> */}
+      <Info info={`number_of_coins * future_price`}/>
+    </>
+  )
+}
+
+/* --------------------------------------------- NetIncrease  --------------------------------------------- */
+const NetIncrease = ({ disabled, coins }) => {
+
+  const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
+  }),[]);
+
+  const { compute } = useComputation({ ignore: 'netIncrease', coins });
+
+  return (
+    <>
+    <Input 
+      onChange={compute}
+      field="netIncrease" 
+      label="Your net increase would be" 
       required 
       disabled={disabled} 
       formatter={formatter} 
@@ -258,11 +341,13 @@ const FutureValue = ({ disabled, coins }) => {
 }
 
 /* --------------------------------------------- Market Cap  --------------------------------------------- */
-const MarketCap = ({ disabled, coins }) => {
+const MarketCap = ({ coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'marketCap', coins });
@@ -274,7 +359,7 @@ const MarketCap = ({ disabled, coins }) => {
         field="marketCap" 
         label="Market Cap" 
         required 
-        disabled={disabled} 
+        disabled 
         formatter={formatter} 
         parser={parser}/>
       <Info info={`coin_supply * coin_price`}/>
@@ -287,7 +372,9 @@ const FutureMarketCap = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futureMarketCap', coins });
@@ -312,7 +399,9 @@ const MarketIncrease = ({ disabled, coins }) => {
 
   const { formatter, parser } = useMemo( () => utils.createIntlNumberFormatter('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'USD',
+    minimumFractionDigits: 2,	
+    maximumFractionDigits: 6,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'marketIncrease', coins });
@@ -343,14 +432,15 @@ const CalculatorForm = ({ disabled, coins, onChange }) => {
 
   return (
     <>
-      <CoinSelector coins={coins} selectedCoin={selectedCoin} disabled={disabled} onChange={onChange}/>
-      <CoinPrice coins={coins} disabled={disabled} selectedCoin={selectedCoin} onChange={onChange}/>
-      <CoinSupply  coins={coins} disabled={disabled} selectedCoin={selectedCoin} onChange={onChange}/>
-      <MarketCap coins={coins} disabled={disabled} onChange={onChange}/>
-      <Coins coins={coins} disabled={disabled} onChange={onChange}/>
-      <CurrentValue coins={coins} disabled={disabled} onChange={onChange}/>
-      <FuturePrice coins={coins} disabled={disabled} onChange={onChange}/>
-      <FutureValue coins={coins} disabled={disabled} onChange={onChange}/>
+      <CoinSelector coins={coins} selectedCoin={selectedCoin} disabled={disabled} />
+      <CoinPrice coins={coins} disabled={disabled} selectedCoin={selectedCoin} />
+      <CoinSupply  coins={coins} disabled={disabled} selectedCoin={selectedCoin} />
+      <MarketCap coins={coins} disabled={disabled} />
+      <Coins coins={coins} disabled={disabled} />
+      <CurrentValue coins={coins} disabled={disabled} />
+      <FuturePrice coins={coins} disabled={disabled} />
+      <FutureValue coins={coins} disabled={disabled} />
+      <NetIncrease coins={coins} disabled={disabled} />
       <FutureMarketCap coins={coins} disabled={disabled} />
       <MarketIncrease coins={coins} disabled={disabled} />
       {/* <button type="submit">Submit</button>  */}
@@ -372,12 +462,10 @@ const Calculator = () => {
 
   const disabledClass = disabled ? styles.calculatorDisabled : '';
 
-  const onChange = (field, value) => console.log('Field', field, 'Value', value);
-
   return (
     <div className={`${styles.calculator} ${disabledClass}`}>
       <Form onSubmit={onSubmit} className={styles.calculatorForm}>
-       <CalculatorForm disabled={disabled} coins={coins} onChange={onChange} />
+       <CalculatorForm disabled={disabled} coins={coins} />
       </Form>
     </div>
   );

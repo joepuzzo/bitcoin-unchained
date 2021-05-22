@@ -12,7 +12,7 @@ export default async (req, res) => {
       country: "US", 
       filter: "all",
       include_prices: "true",
-      limit: "30",
+      limit: "50",
       order: "asc",
       page: "1",
       resolution: "day",
