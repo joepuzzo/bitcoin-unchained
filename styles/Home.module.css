@@ -52,13 +52,27 @@
 }
 
 .title,
-.description {
+.description
+.help {
   text-align: center;
 }
 
 .description {
   line-height: 1.5;
   font-size: 1.5rem;
+}
+
+.help {
+  line-height: 1.5;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+@media only screen and (max-width: 768px) {
+  .help {
+    line-height: inherit;
+    font-size: inherit;
+  }
 }
 
 .calculator {

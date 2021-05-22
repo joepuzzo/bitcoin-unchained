@@ -25,7 +25,7 @@ export default function Home() {
 
         <Calculator />
 
-        <p className={styles.description}>
+        <p className={styles.help}>
           Help me out if you enjoyed :) 
           <div>
           ETH: <code>0x979b6378622E92998E167Ba199C23E9a8B599979</code>
