@@ -12,7 +12,7 @@ export default function Home() {
         <title>Bitcoin Unchained</title>
         <meta name="description" content="A crypto calculator." />
         <link rel="icon" href="/favicon.ico" />
-        <meta property="og:image" content="/imagelink.jpg" />
+        <meta property="og:image" content="https://www.bitcoinunchained.com/imagelink.jpg" />
       </Head>
 
       <main className={styles.main}>
