@@ -10,8 +10,9 @@ export default function Home() {
       <BubbleBackground />
       <Head>
         <title>Bitcoin Unchained</title>
-        <meta name="description" content="A site to demystify crypto." />
+        <meta name="description" content="A crypto calculator." />
         <link rel="icon" href="/favicon.ico" />
+        <meta property="og:image" content="/imagelink.jpg" />
       </Head>
 
       <main className={styles.main}>
