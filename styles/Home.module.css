@@ -75,6 +75,11 @@
   }
 }
 
+.help code {
+  display: block;
+  margin-top: 5px;
+}
+
 .calculator {
   display: flex;
   align-items: center;

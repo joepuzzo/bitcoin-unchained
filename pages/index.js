@@ -29,7 +29,8 @@ export default function Home() {
         <p className={styles.help}>
           Help me out if you enjoyed :) 
           <div>
-          ETH: <code>0x979b6378622E92998E167Ba199C23E9a8B599979</code>
+          <code>DOGE: DELA7u1ChPwEoypUgvbw3wxvtMNJnETLWy</code>
+          <code>ETH: 0x979b6378622E92998E167Ba199C23E9a8B599979</code>
           </div>
         </p>
 
