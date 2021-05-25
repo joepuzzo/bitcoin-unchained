@@ -12,7 +12,7 @@ const Info = ({info}) => {
 
 const round = (num) => {
   const number = +num;
-  return +(number.toFixed(6))
+  return +(number.toFixed(8))
 }
 
 const useComputation = ({ ignore, coins }) => {
@@ -173,7 +173,7 @@ const CoinPrice = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'coinPrice', coins });
@@ -236,7 +236,7 @@ const FuturePrice = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futurePrice', coins });
@@ -264,7 +264,7 @@ const CurrentValue = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'value', coins });
@@ -291,7 +291,7 @@ const FutureValue = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futureValue', coins });
@@ -319,7 +319,7 @@ const NetIncrease = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'netIncrease', coins });
@@ -347,7 +347,7 @@ const MarketCap = ({ coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'marketCap', coins });
@@ -374,7 +374,7 @@ const FutureMarketCap = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'futureMarketCap', coins });
@@ -401,7 +401,7 @@ const MarketIncrease = ({ disabled, coins }) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,	
-    maximumFractionDigits: 6,
+    maximumFractionDigits: 8,
   }),[]);
 
   const { compute } = useComputation({ ignore: 'marketIncrease', coins });
